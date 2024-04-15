@@ -1,30 +1,46 @@
 import tkinter as tk
-from tkinter import messagebox
-from passwordHelper import check_password_strength
+from tkinter import filedialog
+from checkerHelper import FileChecker
 
-def check_password():
-    password = entry_password.get()
-    if password:
-        strength_result = check_password_strength(password)
-        label_strength.config(text=strength_result)
-    else:
-        messagebox.showwarning("Warning", "Please enter a password.")
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Word Checker")
+        
+        self.file_label = tk.Label(root, text="Enter the file path:")
+        self.file_label.pack()
+        
+        self.file_entry = tk.Entry(root, width=50)
+        self.file_entry.pack()
+        
+        self.browse_button = tk.Button(root, text="Browse", command=self.browse_file)
+        self.browse_button.pack()
+        
+        self.edit_text = tk.Entry(root, width=50)
+        self.edit_text.pack()
+        
+        self.search_button = tk.Button(root, text="Search", command=self.search_word)
+        self.search_button.pack()
+        
+        self.result_label = tk.Label(root, text="")
+        self.result_label.pack()
+        
+    def browse_file(self):
+        file_path = filedialog.askopenfilename()
+        self.file_entry.delete(0, tk.END)
+        self.file_entry.insert(tk.END, file_path)
+        
+    def search_word(self):
+        file_path = self.file_entry.get()
+        word = self.edit_text.get()
+        
+        if file_path and word:
+            word_count = FileChecker.count_word_occurrences(file_path, word)
+            self.result_label.config(text=f"Word '{word}' found {word_count} times.")
+        else:
+            self.result_label.config(text="Please provide both file path and word.")
 
-# Create the main window
-window = tk.Tk()
-window.title("Password Strength Checker")
-
-# Create an Entry widget for password input
-entry_password = tk.Entry(window, show="*")
-entry_password.pack(pady=10)
-
-# Create a Button to check password strength
-button_check = tk.Button(window, text="Check Strength", command=check_password)
-button_check.pack(pady=5)
-
-# Create a Label to display password strength
-label_strength = tk.Label(window, text="", fg="blue")
-label_strength.pack(pady=10)
-
-# Run the main event loop
-window.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
